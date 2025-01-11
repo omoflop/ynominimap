@@ -51,7 +51,7 @@ const update = () => {
 
 const onGameLoaded = () => {
     // Compare the version of the script to the one on github
-    const metadataUrl = `${Settings.values.assetServerAddress}/userscript/version.json`;
+    const metadataUrl = `https://raw.githubusercontent.com/omoflop/ynominimap/refs/heads/main/version.json`;
     fetch(metadataUrl)
     .then(response => {
         if (!response.ok) throw new Error(`Failed to reach to asset server (${metadataUrl})`);
@@ -59,7 +59,7 @@ const onGameLoaded = () => {
     })
     .then(json => {
         if (version < json.version) {
-            showToastMessage("There is an update available for YnoMinimap! <a href='https://github.com/omoflop/ynomapdatabase' target='_blank'>Download here</a>", "info", true, undefined, true)
+            showToastMessage("There is an update available for YnoMinimap! <a href='https://github.com/omoflop/ynominimap' target='_blank'>Download here</a>", "info", true, undefined, true)
         }
     })
     .catch(error => {
