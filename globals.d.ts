@@ -6,6 +6,11 @@ declare const easyrpgPlayer: {
         getPlayerCoords: () => [number, number]
     }
 };
+declare const playerData: {
+    name: string
+};
 
 declare const getLocalizedMapLocations: Function
 declare const showToastMessage: Function
+declare const setCookie: Function
+declare const getCookie: Function

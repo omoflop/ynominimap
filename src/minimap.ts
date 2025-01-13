@@ -1,8 +1,9 @@
 import { LazyImage } from "./lazyimage";
 import * as Settings from "./settings";
 import * as Game from "./game";
-import { type ExitTeleport, MapLoopType, type MapTeleport, type ProtoTeleport, areBidirectional } from "./minimaptypes";
 import * as Util from "./util";
+import * as PartyServer from "./partyserver";
+import { type ExitTeleport, MapLoopType, type MapTeleport, type ProtoTeleport, areBidirectional } from "./minimaptypes";
 
 // The element used for displaying the minimap, can be disabled and customized in the settings. Hidden by default until a map is loaded in-game
 export const canvas = document.createElement("canvas");
@@ -60,6 +61,10 @@ const exitTeleports: Array<ExitTeleport> = [];
 
 // A list of teleports that lead to the same map, seperated so they get drawn differently
 const mapTeleports: Array<MapTeleport> = [];
+
+// Stores the position of the player from the last update, used to determine when to update the position to the party
+let lastPositionX = 0;
+let lastPositionY = 0;
 
 canvas.addEventListener("wheel", (event) => {
     const rect = canvas.getBoundingClientRect()
@@ -144,7 +149,13 @@ export const update = () => {
     }
     previousMapId = mapId;
 
-    let [playerX, playerY]: number[] = Game.getPlayerCoords();
+    const [playerX, playerY]: number[] = Game.getPlayerCoords();
+    if (playerX != lastPositionX || playerY != lastPositionY) {
+        PartyServer.updatePosition(playerX, playerY);
+    }
+
+    lastPositionX = playerX;
+    lastPositionY = playerY;
 
     // Update player position if they're too far
     if (Util.dist(playerY * 16, displayPlayerX, playerY * 16, displayPlayerY) > 16 * 4) {
@@ -198,6 +209,20 @@ export const draw = () => {
     ctx.arc(displayPlayerX + 8, displayPlayerY + 8, 8, 0, Math.PI * 2);
     ctx.fill();
 
+    PartyServer.roomData.forEach((pos, user) => {
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(pos[0] * 16 + 8, pos[1] * 16 + 8, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.font = `12px Arial`;
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 1;
+
+        ctx.fillStyle = `rgba(255, 255, 255, 255)`;
+        ctx.fillText(user, pos[0] * 16 + 8, pos[1] * 16 - 8);
+    });
+    
     for (let x = -xx; x <= xx; x++)
         for (let y = -yy; y <= yy; y++) {
             if ((x == 0 && y == 0) || (Settings.values.showWarpsInLoops && mapImage.imageReady)) {
@@ -373,6 +398,8 @@ const onMapChanged = (mapId: string) => {
         .catch(error => {
             if (Settings.values.debug) console.error(error);
         });
+
+    PartyServer.onMapChanged(mapId, playerX, playerY);
 };
 
 const findNameForMap = (mapId : string, playerX : number, playerY : number) : string => {

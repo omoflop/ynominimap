@@ -41,3 +41,18 @@ export const generateRandomColor = () => {
     const hue = Math.floor(Math.random() * 360);
     return `hsl(${hue}, 70%, 50%)`;
 };
+
+type DebouncedFunction<T extends (...args: any[]) => any> = (...args: Parameters<T>) => void;
+export const debounce = <T extends (...args: any[]) => any>(
+    func: T, 
+    delay = 5000
+): DebouncedFunction<T> => {
+    let timeoutId: number | undefined;
+    
+    return function(this: any, ...args: Parameters<T>) {
+        window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+};
