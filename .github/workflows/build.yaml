@@ -27,6 +27,8 @@ jobs:
           git switch --orphan dist
           git clean -fdx
           cp -R /tmp/out/* .
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git commit -m "build: update script"
       - name: push
         uses: ad-m/github-push-action@master
