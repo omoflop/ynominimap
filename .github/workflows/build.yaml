@@ -22,12 +22,13 @@ jobs:
         run: |
           mkdir /tmp/out
           mv dist/* /tmp/out
-      - name: init branch
+      - name: set up branch
         run: |
           git switch --orphan dist
           git clean -fdx
           cp -R /tmp/out/* .
-      - name: commit and push
+          git commit -m "build: update script"
+      - name: push
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ github.token }}
