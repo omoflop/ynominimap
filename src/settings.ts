@@ -79,7 +79,7 @@ export const values = {
     // Debug
     debug: true,
     assetServerAddress: "https://raw.githubusercontent.com/omoflop/ynomapdatabase/refs/heads/main",
-    partyServerAddress: "ws://127.0.0.1:3000"
+    partyServerAddress: "wss://yno.womenkissingwo.men/ws"
 };
 
 export const menuMetadata = {
