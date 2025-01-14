@@ -1,0 +1,34 @@
+name: build
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: set up bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: install deps
+        run: bun install --frozen-lockfile
+      - name: build
+        run: bun run build
+      - name: pack
+        run: |
+          mkdir /tmp/out
+          mv dist/* /tmp/out
+      - name: init branch
+        run: |
+          git switch --orphan dist
+          git clean -fdx
+          cp -R /tmp/out/* .
+      - name: commit and push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: dist

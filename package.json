@@ -2,6 +2,9 @@
   "name": "ynominimap",
   "module": "build.ts",
   "type": "module",
+  "scripts": {
+    "build": "bun run build.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
