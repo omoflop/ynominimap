@@ -140,6 +140,8 @@ const centerOnPlayer = () => {
     panY = centerY - (displayPlayerY + 8) * zoom;
 };
 
+const otherPlayerPositions : Map<string, [number, number]> = new Map();
+
 export const update = () => {
     let mapId = Game.getMapId()!;
     if (mapId && mapId != previousMapId) {
@@ -157,13 +159,34 @@ export const update = () => {
     lastPositionX = playerX;
     lastPositionY = playerY;
 
+    const framerateDelta = Settings.values.updatesPerSecond / 30;
+
+    PartyServer.roomData.forEach((pos, username) => {
+        const x = pos[0] * 16;
+        const y = pos[1] * 16;
+        if (otherPlayerPositions.has(username)) {
+            
+            const pos2 = otherPlayerPositions.get(username)!;
+            if (Util.dist(x, pos2[0], y, pos2[1]) > 64) {
+                pos2[0] = x;
+                pos2[1] = y;
+            }
+
+            pos2[0] = Util.approach(pos2[0], x, framerateDelta);
+            pos2[1] = Util.approach(pos2[1], y, framerateDelta);
+        
+            return;
+        }
+
+        otherPlayerPositions.set(username, [x, y]);
+    });
+
     // Update player position if they're too far
-    if (Util.dist(playerY * 16, displayPlayerX, playerY * 16, displayPlayerY) > 16 * 4) {
+    if (Util.dist(playerX * 16, displayPlayerX, playerY * 16, displayPlayerY) > 64) {
         displayPlayerX = playerX * 16;
         displayPlayerY = playerY * 16;
     }
 
-    const framerateDelta = Settings.values.updatesPerSecond / 30;
 
     displayPlayerX = Util.approach(displayPlayerX, playerX * 16, framerateDelta);
     displayPlayerY = Util.approach(displayPlayerY, playerY * 16, framerateDelta);
@@ -196,32 +219,41 @@ export const draw = () => {
 
     if (mapImage.imageReady) {
         for (let x = -xx; x <= xx; x++)
-            for (let y = -yy; y <= yy; y++) {
-                const loopX = mapImage.value.width * x;
-                const loopY = mapImage.value.height * y;
+        for (let y = -yy; y <= yy; y++) {
+            const loopX = mapImage.value.width * x;
+            const loopY = mapImage.value.height * y;
 
-                ctx.drawImage(mapImage.value, loopX, loopY);
-            }
+            ctx.drawImage(mapImage.value, loopX, loopY);
+        }
+    }
+
+    for (let x = -xx; x <= xx; x++)
+    for (let y = -yy; y <= yy; y++) {
+        const loopX = mapImage.value.width * x;
+        const loopY = mapImage.value.height * y;
+
+        otherPlayerPositions.forEach((pos, user) => {
+            const px = pos[0] + 8 + loopX;
+            const py = pos[1] + 8 + loopY;
+
+            ctx.fillStyle = "white";
+            ctx.beginPath();
+            ctx.arc(px, py, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.font = `12px Arial`;
+            ctx.textAlign = 'center';
+            ctx.lineWidth = 1;
+
+            ctx.fillStyle = `rgba(255, 255, 255, 255)`;
+            ctx.fillText(user, px, py - 16);
+        });
     }
 
     ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(displayPlayerX + 8, displayPlayerY + 8, 8, 0, Math.PI * 2);
     ctx.fill();
-
-    PartyServer.roomData.forEach((pos, user) => {
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(pos[0] * 16 + 8, pos[1] * 16 + 8, 8, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.font = `12px Arial`;
-        ctx.textAlign = 'center';
-        ctx.lineWidth = 1;
-
-        ctx.fillStyle = `rgba(255, 255, 255, 255)`;
-        ctx.fillText(user, pos[0] * 16 + 8, pos[1] * 16 - 8);
-    });
     
     for (let x = -xx; x <= xx; x++)
         for (let y = -yy; y <= yy; y++) {
