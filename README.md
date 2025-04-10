@@ -1,5 +1,7 @@
-# what is this
-the userscript adds a minimap above the chat in yume nikki online for ease of navigating in-game
+# Usage
+This userscript adds a minimap above the chat in yume nikki online for ease of navigating in-game
+It will add two new buttons, one to toggle the visibility of the minimap, and another to edit the minimap settings
+The settings menu isn't very polished yet, and any issues+pull requests are appriciated because I cannot figure it out
 
 # Installation
 1. Navigate to the [dist](https://github.com/omoflop/ynominimap/blob/dist/) branch
