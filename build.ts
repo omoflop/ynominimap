@@ -1,10 +1,10 @@
 import { build } from 'esbuild';
 const banner =  `
 // ==UserScript==
-// @name         YnoProject Minimap
+// @name         ShiniGamer Eyes
 // @namespace    https://github.com/omoflop
 // @version      ${new Date().toISOString().split('T')[0]}
-// @description  A live, interactive minimap for ynoproject
+// @description  Parody of Shinigami eyes browser extension, but for 2kki devs 
 // @author       omoflop
 // @match        https://ynoproject.net/*
 // @grant        none
@@ -14,7 +14,7 @@ const banner =  `
 build({
   entryPoints: ['src/main.ts'],
   bundle: true,
-  outfile: 'dist/minimap.user.js',
+  outfile: 'dist/shinigamereyes.user.js',
   target: 'esnext',
   format: 'iife',
   platform: 'browser',
